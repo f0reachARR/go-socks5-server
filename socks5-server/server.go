@@ -96,9 +96,11 @@ func handleConnection(socksConn *net.TCPConn) {
 	done := make(chan struct{})
 	go func() {
 		io.Copy(clientConn, socksConn)
-		done <- struct{}{}
+		clientConn.Close()
+		close(done)
 	}()
 	io.Copy(socksConn, clientConn)
+	socksConn.Close()
 	<-done
 
 	log.Printf("connection closed")
